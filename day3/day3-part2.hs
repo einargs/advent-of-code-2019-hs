@@ -1,5 +1,5 @@
 #!/usr/bin/env stack
--- stack --resolver lts-14.16 script --package split --package containers
+-- stack --resolver lts-14.16 script --package split
 
 {-# LANGUAGE LambdaCase #-}
 
@@ -8,9 +8,6 @@ import Data.Maybe (maybeToList)
 import Debug.Trace
 
 import Data.List.Split (splitOn)
-
-debug :: Show a => String -> a -> a
-debug str x = trace (str ++ " " ++ show x) x
 
 data Turn = TurnRight Int
           | TurnLeft Int
@@ -91,9 +88,9 @@ intersection l0 l1 =
     ix = floor $ fromIntegral (x p0) + (t * fromIntegral s1x)
     iy = floor $ fromIntegral (y p0) + (t * fromIntegral s1y)
     isIntersection = s >= 0 && s <= 1 && t >= 0 && t <= 1
-    tempPoint = Point ix iy 0
-    l0Dist = steps p0 + manhattanDistance tempPoint p0
-    l1Dist = steps p2 + manhattanDistance tempPoint p2
+    distToIntersection = manhattanDistance $ Point ix iy 0
+    l0Dist = steps p0 + distToIntersection p0
+    l1Dist = steps p2 + distToIntersection p2
     dist = l0Dist + l1Dist
 
 intersectionsOf :: [Line] -> [Line] -> [Point]
@@ -102,15 +99,15 @@ intersectionsOf lines1 lines2 = do
   l2 <- lines2
   maybeToList $ intersection l1 l2
 
+solve :: Paths -> Int
+solve (Paths first second) =
+  minimum $ steps <$> intersections
+  where
+    toLines = pathToLines origin
+    first' = toLines first
+    second' = toLines second
+    intersections = intersectionsOf first' second'
+
 main :: IO ()
-main = do
-  input <- readFile "input.txt"
-  let (Paths first second) = parsePaths input
-      toLines = pathToLines origin
-      first' = toLines first
-      second' = toLines second
-      intersections = intersectionsOf first' second'
-      answer = minimum $ steps <$> intersections
-  print answer
-  return ()
+main = readFile "input.txt" >>= print . solve . parsePaths
 
