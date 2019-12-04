@@ -14,8 +14,8 @@ deref pgrm pos = pgrm ! (pgrm ! pos)
 
 step :: Position -> Program -> Maybe Program
 step pos pgrm = case opcode of
-    1 -> Just $ IM.insert loc (arg1 + arg2) pgrm
-    2 -> Just $ IM.insert loc (arg1 * arg2) pgrm
+    1 -> Just $ perform (+)
+    2 -> Just $ perform (*)
     99 -> Nothing
     x -> error $ "Impossible opcode " ++ show x ++ " at pos " ++ show pos
   where
@@ -23,6 +23,8 @@ step pos pgrm = case opcode of
     arg1 = pgrm `deref` (pos+1)
     arg2 = pgrm `deref` (pos+2)
     loc = pgrm ! (pos+3)
+    perform :: (Int -> Int -> Int) -> Program
+    perform op = IM.insert loc (arg1 `op` arg2) pgrm
 
 run :: Position -> Program -> Program
 run pos pgrm =
