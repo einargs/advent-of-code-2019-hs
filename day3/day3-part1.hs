@@ -1,5 +1,5 @@
 #!/usr/bin/env stack
--- stack --resolver lts-14.16 script --package split --package containers
+-- stack --resolver lts-14.16 script --package split
 
 {-# LANGUAGE LambdaCase #-}
 
